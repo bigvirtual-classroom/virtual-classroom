@@ -34,59 +34,70 @@ public class Run extends HttpServlet {
 	private void dowithURL(String url, HttpServletRequest request,
 			HttpServletResponse response) {
 		if (url.indexOf("/run/build") > -1) {
+			String code = request.getParameter("code");
+			String className = request.getParameter("className");
+			String userName = (String) request.getSession().getAttribute("username");
 			// 编译
-			build(request, response);
+			String msg = build(code, className,userName);
+			ServletUtill.json_ok(response, msg);
 		} else if (url.indexOf("/run/go") > -1) {
+			String className = request.getParameter("className");
+			String userName = (String) request.getSession().getAttribute("username");
 			// 运行
-			gorun(request, response);
+			String gorun = gorun(className, userName);
+			ServletUtill.json_ok(response, gorun);
+			
 		} else if (url.indexOf("/run/bgo") > -1) {
+			String code = request.getParameter("code");
+			String className = request.getParameter("className");
+			String userName = (String) request.getSession().getAttribute("username");
 			// 编译运行
-			buildAndRun(request, response);
+			String back = buildAndRun(code, className,userName);
+			ServletUtill.json_ok(response, back);
 		}
 	}
 
-	private void gorun(HttpServletRequest request, HttpServletResponse response) {
-		String className = request.getParameter("className");
-		String userName = (String) request.getSession().getAttribute("username");
+	private String gorun(String className, String  userName) {
+
 		try {
 			String back = MainUtil.runJava(userName, className);
-			ServletUtill.json_ok(response, back);
+			return back;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return null;
 	}
 
-	private void buildAndRun(HttpServletRequest request,
-			HttpServletResponse response) {
-		String code = request.getParameter("code");
-		String className = request.getParameter("className");
-		String userName = (String) request.getSession().getAttribute("username");
+	private String buildAndRun(String code,String className,String userName) {
+
 		try {
 			MainUtil.saveJavaFile(userName, code);
 			String back = MainUtil.build2(userName, className);
-			ServletUtill.json_ok(response, back);
+			return  back;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return null;
 	}
 
-	private void build(HttpServletRequest request, HttpServletResponse response) {
+	private String build(String code,String className,String userName) {
 		//获取
-		String code = request.getParameter("code");
+/*		String code = request.getParameter("code");
 		String className = request.getParameter("className");
-		String userName = (String) request.getSession().getAttribute("username");
+		String userName = (String) request.getSession().getAttribute("username");*/
 		try {
 			MainUtil.saveJavaFile(userName, code);
 			int back = MainUtil.build(userName, className);
 			if(back==0){
-				ServletUtill.json_ok(response, "OK");
+				return  "OK";
 			}else{
-				ServletUtill.json_err(response, "编译出错");
+				return "编译出错";
 			}
 			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return null;
 	}
 
 }
