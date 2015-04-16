@@ -82,9 +82,6 @@ public class Run extends HttpServlet {
 
 	private String build(String code,String className,String userName) {
 		//获取
-/*		String code = request.getParameter("code");
-		String className = request.getParameter("className");
-		String userName = (String) request.getSession().getAttribute("username");*/
 		try {
 			MainUtil.saveJavaFile(userName, code);
 			int back = MainUtil.build(userName, className);
