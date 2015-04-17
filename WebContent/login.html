@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Login</title>
+<script type="text/javascript" src="jquery-1.10.2.min.js"></script>
+<script>
+var online= new Array(); //全局变量，
+</script>
+<script src=" http://webpresence.qq.com/getonline?Type=1&703169001:"></script>
+<script>
+if (online[0]==0)
+document.write("不在线");
+else
+document.write("在线");
+</script>
+</head>
+<body>
+	<form action="login" method="post">
+		UserName :  <input type="text" name="username">
+		<input type="submit">
+	</form>
+	<a target="_blank" href="http://wpa.qq.com/msgrd?v=3&uin=703169001&site=qq&menu=yes"><img border="0" src="http://wpa.qq.com/pa?p=2:703169001:52" alt="Tmooc" title="Tmooc"/></a>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+<link type="text/css" rel="stylesheet" href="style/index.css" />
+</head>
+
+<body>
+
+<div class="codebox">
+	<div class="codesub"><p class="clearfloat"><a id="run_go">运行</a><a id="build_java">编译</a></p></div>
+	<pre id="editor"></pre>
+</div>
+<div class="coderun_result"></div>
+<script type="text/javascript" src="script/jquery-1.js"></script>
+<script type="text/javascript" src="script/ace.js"></script>
+<script type="text/javascript" src="script/ext-language_tools.js"></script>
+<script>
+	var langTools = ace.require("ace/ext/language_tools");
+	var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/twilight");
+    editor.getSession().setMode("ace/mode/java");
+	editor.setOptions({
+			enableBasicAutocompletion : true,
+			enableLiveAutocompletion : true
+		});
+		// uses http://rhymebrain.com/api.html
+	editor.commands.on("afterExec", function(e) {
+			if (e.command.name == "insertstring" && /^[\\.\(.]$/.test(e.args)) {
+				editor.execCommand("startAutocomplete");
+			}
+		});
+	var rhymeCompleter = {
+			getCompletions : function(editor, session, pos, prefix, callback) {
+				/* if (prefix.length === 0) { callback(null, []); return } */
+				console.log("prefix" + prefix);
+				/* $.getJSON(
+				    "http://rhymebrain.com/talk?function=getRhymes&word=" + prefix,
+				    function(wordList) {
+				        // wordList like [{"word":"flow","freq":24,"score":300,"flags":"bc","syllables":"1"}]
+				        callback(null, wordList.map(function(ea) {
+				            return {name: ea.word, value: ea.word, score: ea.score, meta: "rhyme"}
+				        }));
+				    }) */
+				$.getJSON("loadCodeNote.action?filePath="
+						+ $("#input-projectpath").val() + "/"
+						+ $("#input-filename").val() + ".java", function(
+						wordList) {
+					console.log("@@@@@" + wordList);
+					// wordList like [{"word":"flow","freq":24,"score":300,"flags":"bc","syllables":"1"}]
+					callback(null, wordList.map(function(ea) {
+						return {
+							name : ea.word,
+							value : ea.word,
+							score : ea.score,
+							meta : "rhyme"
+						}
+					}));
+				})
+			}
+		}
+	langTools.addCompleter(rhymeCompleter);
+	function getClassName(con){
+		return $.trim(con.substring(con.indexOf("public class ")+"public class ".length,con.indexOf("{")));
+	}
+	$(document).ready(function(data){
+		$("#build_java").click(function(){
+			//编译
+			var con = editor.getValue();
+			var className = getClassName(con);
+			if(className==undefined||className.length==0){
+				alert("没有class")
+				return ;
+			}
+			var code = editor.getValue();
+			$.post("run/build",{className:className,code:code},function(data){
+				eval("var obj = "+data);
+				console.log(data);
+				if(obj.back==1){
+					$(".coderun_result").html("<p>编译成功!</p>")
+				}else{
+					$(".coderun_result").html("<p>编译失败!</p>")
+				}
+			},"text");
+		});
+		$("#run_go").click(function(){
+			//运行
+			//编译
+			var con = editor.getValue();
+			var className = getClassName(con);
+			$.post("run/go",{className:className},function(data){
+				eval("var obj = "+data);
+				var msg = obj.msg;
+				if(obj.back==1){
+					$(".coderun_result").html("<p>"+msg+"</p>")
+				}else{
+					alert("系统错误");
+				}
+			},"text");
+		});
+	});
+</script>
+</body>
+</html>

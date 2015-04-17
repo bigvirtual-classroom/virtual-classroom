@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Auto java run</title>
+<script type="text/javascript" src="jquery-1.10.2.min.js"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("#building").click(function(){
+			//编译
+			var className = $("#classname").val();
+			var code = $("#code_").val();
+			$.post("run/build",{className:className,code:code},function(data){
+				eval("var obj = "+data);
+				console.log(data);
+				if(obj.back==1){
+					$("#sout").html("<p>编译成功!</p>")
+				}else{
+					$("#sout").html("<p>编译失败!</p>")
+				}
+			},"text");
+		});
+		$("#runggo").click(function(){
+			//运行
+			//编译
+			var className = $("#classname").val();
+			$.post("run/go",{className:className},function(data){
+				eval("var obj = "+data);
+				var msg = obj.msg;
+				if(obj.back==1){
+					$("#sout").html("<p>"+msg+"</p>")
+				}else{
+					alert("系统错误");
+				}
+			},"text");
+		});
+		$("#buildrung").click(function(){
+			//编译和运行
+		});
+	});
+</script>
+</head>
+<body>
+	<a href="login.html">登录</a>
+	<hr>
+	<div>
+		Classname:<input type="text" id="classname"><br>
+		<textarea id="code_" rows="15" cols="120"></textarea>
+		<!-- <input type="button" value="保存"> --><hr>
+		<input id="building" type="button" value="编译">
+		<input id="runggo" type="button" value="运行">
+		<input id="buildrung" type="button" value="编译运行">
+		<hr>
+		<div id="sout" style="color: white;background-color: black;width: 100%;height: 200px;border: 2px solid #CCC;padding-left: 10px;">
+			
+		</div>
+	</div>
+</body>
+</html>
